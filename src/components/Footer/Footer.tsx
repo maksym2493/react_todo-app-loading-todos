@@ -1,11 +1,11 @@
 import React from 'react';
-import { Filter } from '../../types/Filter';
 import classNames from 'classnames';
+
+import { Filter } from '../../types/Filter';
 
 type Props = {
   totalCount: number;
   activeCount: number;
-  clearCompleted: () => void;
 
   filter: Filter;
   setFilter: (newFilter: Filter) => void;
@@ -14,7 +14,6 @@ type Props = {
 export const Footer: React.FC<Props> = React.memo(function Footer({
   totalCount,
   activeCount,
-  clearCompleted,
 
   filter,
   setFilter,
@@ -63,7 +62,6 @@ export const Footer: React.FC<Props> = React.memo(function Footer({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={totalCount === activeCount}
-        onClick={clearCompleted}
       >
         Clear completed
       </button>

@@ -19,9 +19,6 @@ import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
-  const [, setState] = useState(0);
-
-  const [title, setTitle] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -47,94 +44,7 @@ export const App: React.FC = () => {
       });
   }, [hideError]);
 
-  // #region form
-  const handleTitleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setShowErrorMessage(false);
-      setTitle(event.target.value);
-    },
-    [],
-  );
-
-  const addTodo = useCallback(
-    (event: React.FormEvent) => {
-      event.preventDefault();
-
-      if (!title) {
-        hideError();
-        setShowErrorMessage(true);
-        setErrorMessage('Title should not be empty');
-
-        return;
-      }
-
-      setTodos(prevTodos => {
-        const id = Math.max(0, ...prevTodos.map(todo => todo.id)) + 1;
-
-        const newTodo: Todo = {
-          id,
-          userId: api.USER_ID,
-          title,
-          completed: false,
-        };
-
-        return [...prevTodos, newTodo];
-      });
-
-      setTitle('');
-    },
-    [hideError, title],
-  );
-
-  // #endregion
-
-  // #region todo info
-  const completeAll = useCallback((activeCount: number) => {
-    setTodos(prevTodos => {
-      for (const todo of prevTodos) {
-        todo.completed = !!activeCount;
-      }
-
-      return [...prevTodos];
-    });
-  }, []);
-
-  const removeTodo = useCallback((todoId: number) => {
-    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
-  }, []);
-
-  const changeTitle = useCallback((todoId: number, newValue: string) => {
-    setTodos(prevTodos => {
-      const foundedTodo = prevTodos.find(todo => todo.id === todoId);
-
-      if (foundedTodo) {
-        foundedTodo.title = newValue;
-        setState(prevState => prevState + 1);
-      }
-
-      return prevTodos;
-    });
-  }, []);
-
-  const changeCompleted = useCallback((todoId: number, newValue: boolean) => {
-    setTodos(prevTodos => {
-      const foundedTodo = prevTodos.find(todo => todo.id === todoId);
-
-      if (foundedTodo) {
-        foundedTodo.completed = newValue;
-        setState(prevState => prevState + 1);
-      }
-
-      return prevTodos;
-    });
-  }, []);
-  // #endregion
-
   // #region footer
-  const clearCompleted = useCallback(() => {
-    setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
-  }, []);
-
   const filteredTodos = useMemo(() => {
     switch (filter) {
       case 'All':
@@ -164,35 +74,26 @@ export const App: React.FC = () => {
                 active: !activeCount,
               })}
               data-cy="ToggleAllButton"
-              onClick={() => completeAll(activeCount)}
             />
           )}
 
-          <form onSubmit={addTodo}>
+          <form>
             <input
               data-cy="NewTodoField"
               type="text"
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
               autoFocus={true}
-              value={title}
-              onChange={handleTitleChange}
             />
           </form>
         </header>
 
-        <TodoList
-          todos={filteredTodos}
-          removeTodo={removeTodo}
-          changeTitle={changeTitle}
-          changeCompleted={changeCompleted}
-        />
+        <TodoList todos={filteredTodos} />
 
         {todos.length !== 0 && (
           <Footer
             totalCount={todos.length}
             activeCount={activeCount}
-            clearCompleted={clearCompleted}
             filter={filter}
             setFilter={setFilter}
           />
